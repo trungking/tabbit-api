@@ -1,0 +1,51 @@
+"""Test: change body, re-sign correctly, same session. Does it work?"""
+import json, uuid, pathlib, sys
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tabbit_client import _sign_headers, DEFAULT_SIGN_KEY
+cfg = json.loads((ROOT / "tabbit_config.json").read_text(encoding="utf-8"))
+from curl_cffi import requests as cureq
+
+# Modified body — different content
+body = {
+    "chat_session_id": "a37d55c4-aecf-47bc-a386-14a0a1078df8",
+    "message_id": None,
+    "content": "What is 2+2? Answer in one short sentence.",
+    "selected_model": "Claude-Opus-4.8",
+    "parallel_group_id": None,
+    "task_name": "chat",
+    "agent_mode": False,
+    "metadatas": {"html_content": "<p>What is 2+2?</p>"},
+    "references": [],
+    "entity": {"key": "d41d8cd98f00b204e9800998ecf8427e", "extras": {"type": "tab", "url": ""}},
+}
+body_str = json.dumps(body, separators=(",", ":"))
+sign_hdrs = _sign_headers(body_str, DEFAULT_SIGN_KEY)
+
+print(f"Body content: 'What is 2+2?...'")
+print(f"x-timestamp: {sign_hdrs['x-timestamp']}")
+print()
+
+r = cureq.post(
+    "https://web.tabbit.ai/api/v1/chat/completion",
+    data=body_str.encode("utf-8"),
+    headers={
+        "Content-Type": "application/json",
+        "x-req-ctx": "MS4xLjM5KDEwMTAxMDM5KQ==",
+        "unique-uuid": str(uuid.uuid4()),
+        "Accept": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "trace-id": str(uuid.uuid4()),
+        **sign_hdrs,
+    },
+    cookies=cfg["cookies"],
+    impersonate="chrome124",
+    stream=True, timeout=30,
+)
+print(f"HTTP {r.status_code}")
+for i, line in enumerate(r.iter_lines()):
+    if isinstance(line, bytes):
+        line = line.decode("utf-8", errors="replace")
+    print(line)
+    if i > 12:
+        break

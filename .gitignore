@@ -1,0 +1,32 @@
+# Secrets / local session
+cookies.txt
+tabbit_config.json
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Captured traffic / local dumps (may contain tokens)
+captured_request.json
+dom_inspection.json
+fresh_capture.json
+opus_capture.json
+replay_payload.json
+replay_payload_raw.json
+last_capture.txt
+test/test_output.txt
+test/chinese_translate_bench.json
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

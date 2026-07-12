@@ -1,0 +1,23 @@
+services:
+  tabbit-openai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:8585:8000"
+    environment:
+      TABBIT_CONFIG: /app/tabbit_config.json
+      TABBIT_SERVER_API_KEY: ${TABBIT_SERVER_API_KEY:-}
+    volumes:
+      - ./tabbit_config.json:/app/tabbit_config.json:ro
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8585/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
