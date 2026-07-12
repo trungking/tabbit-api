@@ -168,12 +168,17 @@ The image contains only the server code. `tabbit_config.json` is excluded from
 the build context and mounted read-only at runtime.
 
 ```powershell
+# optional API key for the proxy (leave empty to disable auth on localhost)
+copy .env.example .env
+# edit .env and set TABBIT_SERVER_API_KEY=your-secret
+
 docker compose up --build -d
 docker compose logs -f
 ```
 
-The API is then available at `http://127.0.0.1:8000/v1`. Stop any native server
-already using port 8000 before starting Compose. To stop the container:
+The API is then available at `http://127.0.0.1:8585/v1` (see `docker-compose.yaml`
+port mapping). Stop any native server already using that host port before
+starting Compose. To stop the container:
 
 ```powershell
 docker compose down
